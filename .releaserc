@@ -1,6 +1,6 @@
 {
-  "branches": "master",
-  "repositoryUrl": "https://github.com/thecodinganalyst/semantic-java",
+  "branches": "main",
+  "repositoryUrl": "https://github.com/andregri/terraform-examples",
   "debug": "false",
   "plugins": [
     "@semantic-release/commit-analyzer",
