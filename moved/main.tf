@@ -26,53 +26,25 @@ module "vpc" {
   }
 }
 
-resource "aws_security_group" "allow_http" {
-  name        = "allow-http-sg"
-  description = "Allow TCP/80"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "allow traffic from TCP/80"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+moved {
+  from = aws_instance.webserver
+  to   = module.app.aws_instance.webserver
 }
 
-resource "aws_instance" "webserver" {
-  ami                         = "ami-05fa00d4c63e32376"
-  instance_type               = "t2.micro"
-  
-  associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.allow_http.id]
-  subnet_id                   = module.vpc.public_subnets[0]
-  
-  user_data = <<-EOF
-  #!/bin/bash
+moved {
+  from = aws_security_group.allow_http
+  to   = module.security_group.aws_security_group.allow_http
+}
 
-########################################
-##### USE THIS WITH AMAZON LINUX 2 #####
-########################################
+module "app" {
+  source = "./modules/app"
 
-# get admin privileges
-sudo su
+  security_group_ids = [module.security_group.id]
+  public_subnet_id   = module.vpc.public_subnets[0]
+}
 
-# install httpd (Linux 2 version)
-yum update -y
-yum install -y httpd.x86_64
-systemctl start httpd.service
-systemctl enable httpd.service
-echo "Hello World from $(hostname -f)" > /var/www/html/index.html
-  EOF
-  
-  tags = {
-    Name = "webserver"
-  }
+module "security_group" {
+  source = "./modules/security"
+
+  vpc_id = module.vpc.vpc_id
 }
