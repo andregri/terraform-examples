@@ -1,5 +1,13 @@
 # Semantic Versioning Changelog
 
+# [1.1.0](https://github.com/andregri/terraform-examples/compare/v1.0.0...v1.1.0) (2022-09-02)
+
+
+### Features
+
+* template file with json and yaml ([4ef4ca4](https://github.com/andregri/terraform-examples/commit/4ef4ca4d6c890c346c4582043a3bdb1bb16d585d))
+* template file with lists ([229815a](https://github.com/andregri/terraform-examples/commit/229815ac89e3f4a9c04913070a7c2c7fced29314))
+
 # 1.0.0 (2022-09-01)
 
 
