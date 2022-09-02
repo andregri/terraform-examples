@@ -1,0 +1,3 @@
+%{ for ip in ec2_instances ~}
+${ip} server-${index(ec2_instances, ip) + 1}
+%{ endfor ~}
