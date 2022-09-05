@@ -68,3 +68,34 @@ data "aws_iam_policy_document" "vault-server" {
     resources = ["*"]
   }
 }
+
+## jenkins
+resource "aws_iam_role" "jenkins" {
+  name                = "jenkins-role"
+  assume_role_policy  = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy" "jenkins" {
+  name    = "${var.environment_name}-jenkins-node-role-policy"
+  role    = aws_iam_role.jenkins.id
+  policy  = data.aws_iam_policy_document.jenkins.json
+}
+
+resource "aws_iam_instance_profile" "jenkins" {
+  name    = "${var.environment_name}-jenkins-node-role-instance-profile"
+  role    = aws_iam_role.jenkins.id
+}
+
+data "aws_iam_policy_document" "jenkins" {
+  statement {
+    sid    = "VaultAWSAuthMethod"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeInstances",
+      "iam:GetInstanceProfile",
+      "iam:GetUser",
+      "iam:GetRole",
+    ]
+    resources = ["*"]
+  }
+}

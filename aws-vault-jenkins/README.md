@@ -1,1 +1,2 @@
-1. Create a EC2 instance that runs a Vault server
+1. Create an EC2 instance that runs a Vault server
+2. Create an EC2 instance that runs Jenkins

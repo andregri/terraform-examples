@@ -1,6 +1,6 @@
 1. SSH into the Vault **server** instance: `ssh -i <path_to_key> ubuntu@<public_ip_of_server>`
 
-2. On the **server** instance, run the following commands:
+2. On the **vault server** instance, run the following commands:
 
     ```shell
     # Initialize Vault
@@ -40,3 +40,12 @@
     # Add the policy to jenkins-role
     $ vault write auth/approle/role/jenkins-role token_policies=default,jenkins-policy
     ```
+
+3. On the **jenkins** instance, run the following commands:
+
+    ```shell
+    # Get Jenkins admin password
+    $ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+    ```
+
+    Copy and paste the password on the web ui at `http://<public_ip>:8080` and complete the initial configuration of Jenkins.
