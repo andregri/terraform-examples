@@ -13,6 +13,7 @@ resource "aws_instance" "jenkins-node" {
 
     user_data = templatefile("${path.module}/templates/userdata-jenkins.tpl",
     {
+      tpl_vault_zip_file          = var.vault_zip_file
       tpl_vault_service_name      = "jenkins-${var.environment_name}"
       tpl_kms_key                 = aws_kms_key.vault.id
       tpl_aws_region              = var.aws_region

@@ -1,0 +1,18 @@
+node {
+    withCredentials([
+            [
+                $class: 'VaultTokenCredentialBinding',
+                credentialsId: 'Jenkins-vault-approle',
+                vaultAddr: 'http://54.242.75.6:8200'
+            ]
+        ]){
+            stage('Jenkins Node creates a wrapped Secret ID for the pipeline') 
+            {
+                env.WRAPPED_SECRET_ID = ""
+                env.WRAPPED_SECRET_ID = sh(
+                    returnStdout: true,
+                    script: 'vault write -f auth/pipeline/role/pipeline-role/secret-id -field=wrapping_token'
+                )
+            }
+        }
+}
