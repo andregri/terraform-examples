@@ -1,0 +1,1 @@
+1. Create a EC2 instance that runs a Vault server
