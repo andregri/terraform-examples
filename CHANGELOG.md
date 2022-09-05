@@ -1,5 +1,19 @@
 # Semantic Versioning Changelog
 
+# [1.2.0](https://github.com/andregri/terraform-examples/compare/v1.1.0...v1.2.0) (2022-09-05)
+
+
+### Bug Fixes
+
+* install vault on jenkins node ([7ff8dea](https://github.com/andregri/terraform-examples/commit/7ff8dea247c7622a7c1455975fda31df6398eebb))
+
+
+### Features
+
+* enable auth approle for jenkins, pipeline, and app ([12af57c](https://github.com/andregri/terraform-examples/commit/12af57cfc6e58a2cfb3108aa77a96a798f4aa0d1))
+* jenkins role auth ([cec225d](https://github.com/andregri/terraform-examples/commit/cec225d9cba8049c6a45a29e0ff5dfe3df704ea9))
+* template for jenkins instance ([a29b79a](https://github.com/andregri/terraform-examples/commit/a29b79a86701a190df980d6340d970a0fd0bb4fe))
+
 # [1.1.0](https://github.com/andregri/terraform-examples/compare/v1.0.0...v1.1.0) (2022-09-02)
 
 
