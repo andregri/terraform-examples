@@ -90,7 +90,7 @@ node {
                 env.AWS_SECRET_ACCESS_KEY = ""
                 env.AWS_SECRET_ACCESS_KEY = sh(
                     returnStdout: true,
-                    script: "echo '${credentials}' | jq '.data.secret_key'"
+                    script: "echo '${aws_creds}' | jq '.data.secret_key'"
                 )
             }
 
