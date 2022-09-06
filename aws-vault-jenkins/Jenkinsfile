@@ -101,7 +101,13 @@ node {
                 env.TF_VAR_password = env.DB_PASSWORD
                 env.TF_VAR_key_name = "vault-kp"
 
-                sh 'cd "/var/lib/jenkins/workspace/my job/terraform-examples/aws-vault-jenkins/app" && terraform apply -auto-approve -no-color'
+                sh 'pwd'
+                sh 'ls'
+                sh """
+                    cd "/var/lib/jenkins/workspace/my job@terraform-examples/aws-vault-jenkins/app"
+                    terraform init
+                    terraform apply -auto-approve -no-color
+                """
             }
         }
 }
