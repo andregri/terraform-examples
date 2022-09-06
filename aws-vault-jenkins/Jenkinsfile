@@ -70,5 +70,38 @@ node {
                     script: "echo '${credentials}' | jq '.data.password'"
                 )
             }
+
+            stage('Get aws credentials')
+            {
+                def aws_creds = ""
+                aws_creds = sh(
+                    returnStdout: true,
+                    script: """
+                        curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: ${VAULT_PIPELINE_TOKEN}" ${VAULT_ADDR}/v1/aws/creds/pipeline-role | jq ".data"
+                    """
+                )
+
+                env.AWS_ACCESS_KEY_ID = ""
+                env.AWS_ACCESS_KEY_ID = sh(
+                    returnStdout: true,
+                    script: "echo '${aws_creds}' | jq '.data.access_key'"
+                )
+
+                env.AWS_SECRET_ACCESS_KEY = ""
+                env.AWS_SECRET_ACCESS_KEY = sh(
+                    returnStdout: true,
+                    script: "echo '${credentials}' | jq '.data.secret_key'"
+                )
+            }
+
+            stage('Provision webapp infrastructure with terraform')
+            {
+                env.TF_VAR_aws_region = "us-east-1"
+                env.TF_VAR_username = env.DB_USER
+                env.TF_VAR_password = env.DB_PASSWORD
+                env.TF_VAR_key_name = "vault-kp"
+
+                sh 'cd app && terraform apply -auto-approve -no-color'
+            }
         }
 }

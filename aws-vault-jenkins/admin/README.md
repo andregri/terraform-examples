@@ -59,6 +59,29 @@
     # 
     $ vault secrets enable -path=db-creds kv
     $ vault kv put db-creds/db user=jenkins  password=strongpassword
+
+    # Enable AWS dynamic secrets
+    $ vault secrets enable aws
+    $ vault write aws/config/root/ access_key="" secret_key="" region="us-east-1"
+    $ vault write aws/roles/pipeline-role \
+        credential_type=iam_user \
+        policy_document=-<<EOF
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Stmt1426528957000",
+                    "Effect": "Allow",
+                    "Action": [
+                        "ec2:*", "rds:*", "iam:GetUser"
+                    ],
+                    "Resource": [
+                        "*"
+                    ]
+                }
+            ]
+        }
+EOF
     ```
 
 3. On the **jenkins** instance, run the following commands:
