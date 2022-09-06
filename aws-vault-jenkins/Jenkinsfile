@@ -1,4 +1,5 @@
 node {
+    checkout scm
     withCredentials([
             [
                 $class: 'VaultTokenCredentialBinding',
@@ -101,8 +102,6 @@ node {
                 env.TF_VAR_password = env.DB_PASSWORD
                 env.TF_VAR_key_name = "vault-kp"
 
-                sh 'pwd'
-                sh 'ls'
                 sh """
                     cd "${env.WORKSPACE}/terraform-examples/aws-vault-jenkins/app"
                     terraform init
