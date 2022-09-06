@@ -3,7 +3,7 @@ node {
             [
                 $class: 'VaultTokenCredentialBinding',
                 credentialsId: 'vault-jenkins-auth',
-                vaultAddr: 'http://52.90.78.152:8200'
+                vaultAddr: 'http://52.71.251.100:8200'
             ]
         ]){
             stage('Jenkins Node reads the role-id for the pipeline-role')
