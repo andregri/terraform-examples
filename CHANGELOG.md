@@ -1,5 +1,14 @@
 # Semantic Versioning Changelog
 
+# [1.3.0](https://github.com/andregri/terraform-examples/compare/v1.2.0...v1.3.0) (2022-09-06)
+
+
+### Features
+
+* install terraform on jenkins node ([9e19595](https://github.com/andregri/terraform-examples/commit/9e195957aa1235f3b766fc63a413cc9b3e0253a4))
+* jenkins pipeline can assume pipeline-role ([d8b9e9e](https://github.com/andregri/terraform-examples/commit/d8b9e9e53f6f1f8f0e15e96d73930ed4600d1894))
+* provision app infra with terraform ([ddc4b76](https://github.com/andregri/terraform-examples/commit/ddc4b7623597626469878f3755785cabe12e7b81))
+
 # [1.2.0](https://github.com/andregri/terraform-examples/compare/v1.1.0...v1.2.0) (2022-09-05)
 
 
