@@ -104,7 +104,7 @@ node {
                 sh 'pwd'
                 sh 'ls'
                 sh """
-                    cd "/var/lib/jenkins/workspace/my job@terraform-examples/aws-vault-jenkins/app"
+                    cd "${env.WORKSPACE}/terraform-examples/aws-vault-jenkins/app"
                     terraform init
                     terraform apply -auto-approve -no-color
                 """
