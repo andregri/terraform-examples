@@ -2,16 +2,72 @@ node {
     withCredentials([
             [
                 $class: 'VaultTokenCredentialBinding',
-                credentialsId: 'Jenkins-vault-approle',
-                vaultAddr: 'http://54.242.75.6:8200'
+                credentialsId: 'vault-jenkins-auth',
+                vaultAddr: 'http://52.90.78.152:8200'
             ]
         ]){
-            stage('Jenkins Node creates a wrapped Secret ID for the pipeline') 
+            stage('Jenkins Node reads the role-id for the pipeline-role')
+            {
+                env.ROLE_ID = ""
+                env.ROLE_ID = sh(
+                    returnStdout: true,
+                    script: """
+                        curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR}/v1/auth/pipeline/role/pipeline-role/role-id | jq ".data.role_id"
+                    """
+                )
+            }
+
+            stage('Jenkins Node creates a wrapped Secret ID for the pipeline-role') 
             {
                 env.WRAPPED_SECRET_ID = ""
                 env.WRAPPED_SECRET_ID = sh(
                     returnStdout: true,
-                    script: 'vault write -f auth/pipeline/role/pipeline-role/secret-id -field=wrapping_token'
+                    script: 'curl --silent --header "X-Vault-Token: $VAULT_TOKEN" -H "X-Vault-Wrap-Ttl: 300s" --request POST "${VAULT_ADDR}/v1/auth/pipeline/role/pipeline-role/secret-id" | jq ".wrap_info.token"'
+                )
+            }
+
+            stage('Unwrap the Secret ID for the pipeline-role')
+            {
+                env.SECRET_ID = ""
+                env.SECRET_ID = sh(
+                    returnStdout: true,
+                    script: """
+                        curl --silent -X PUT -H "X-Vault-Request: true" -H "X-Vault-Token: ${VAULT_TOKEN}" -d '{"token":${env.WRAPPED_SECRET_ID}}' ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq ".data.secret_id"
+                    """
+                )
+            }
+
+            stage('Authenticate for the pipeline-role to get a token')
+            {
+                env.VAULT_PIPELINE_TOKEN = ""
+                env.VAULT_PIPELINE_TOKEN = sh(
+                    returnStdout: true,
+                    script: """
+                        curl --silent -X PUT -H "X-Vault-Request: true" -H "X-Vault-Token: ${VAULT_TOKEN}" -d '{"role_id":${env.ROLE_ID},"secret_id":${env.SECRET_ID}}' ${VAULT_ADDR}/v1/auth/pipeline/login | jq ".auth.client_token"
+                    """
+                )
+            }
+
+            stage('Get db credential secrets')
+            {
+                def credentials = ""
+                credentials = sh(
+                    returnStdout: true,
+                    script: """
+                        curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: ${env.VAULT_PIPELINE_TOKEN}" ${VAULT_ADDR}/v1/db-creds/db
+                    """
+                )
+
+                env.DB_USER = ""
+                env.DB_USER = sh(
+                    returnStdout: true,
+                    script: "echo '${credentials}' | jq '.data.user'"
+                )
+
+                env.DB_PASSWORD = ""
+                env.DB_PASSWORD = sh(
+                    returnStdout: true,
+                    script: "echo '${credentials}' | jq '.data.password'"
                 )
             }
         }

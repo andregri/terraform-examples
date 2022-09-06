@@ -4,3 +4,6 @@ path "auth/pipeline/role/pipeline-role/secret-id" {
     max_wrapping_ttl = "300s"
 }
 
+path "auth/pipeline/role/pipeline-role/role-id" {
+    capabilities = ["read"]
+}

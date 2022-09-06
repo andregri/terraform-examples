@@ -115,14 +115,14 @@ sudo systemctl start jenkins
 ##--------------------------------------------------------------------
 ## Install Vault
 
-logger "Downloading Vault"
-curl -o /tmp/vault.zip $${VAULT_ZIP}
-
-logger "Installing Vault"
-sudo unzip -o /tmp/vault.zip -d /usr/local/bin/
-sudo chmod 0755 /usr/local/bin/vault
-sudo chown vault:vault /usr/local/bin/vault
-sudo mkdir -pm 0755 /etc/vault.d
-sudo mkdir -pm 0755 /etc/ssl/vault
-
-logger "/usr/local/bin/vault --version: $(/usr/local/bin/vault --version)"
+#logger "Downloading Vault"
+#curl -o /tmp/vault.zip $${VAULT_ZIP}
+#
+#logger "Installing Vault"
+#sudo unzip -o /tmp/vault.zip -d /usr/local/bin/
+#sudo chmod 0755 /usr/local/bin/vault
+#sudo chown vault:vault /usr/local/bin/vault
+#sudo mkdir -pm 0755 /etc/vault.d
+#sudo mkdir -pm 0755 /etc/ssl/vault
+#
+#logger "/usr/local/bin/vault --version: $(/usr/local/bin/vault --version)"

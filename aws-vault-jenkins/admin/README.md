@@ -58,6 +58,7 @@
 
     # 
     $ vault secrets enable -path=db-creds kv
+    $ vault kv put db-creds/db user=admin  password=strongpassword
     ```
 
 3. On the **jenkins** instance, run the following commands:
