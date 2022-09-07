@@ -104,8 +104,8 @@ node {
 
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
-                    terraform init
-                    terraform apply -auto-approve -no-color
+                    terraform init -no-color
+                    AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY} terraform apply -auto-approve -no-color
                 """
             }
         }
