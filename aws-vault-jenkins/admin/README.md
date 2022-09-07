@@ -33,7 +33,7 @@
 
     $ vault write auth/pipeline/role/pipeline-role \
         secret_id_ttl=300 \
-        token_num_uses=2 \
+        token_num_uses=3 \
         token_ttl=1800
 
     $ vault write auth/webapp/role/webapp-role \
@@ -54,7 +54,7 @@
     ## Write the policy for webapp-role that allows the app to 
     $ vim webapp-policy.hcl
     $ vault policy write webapp-policy webapp-policy.hcl
-    $ vault write auth/pipeline/role/webapp-role token_policies=default,jenkins-policy
+    $ vault write auth/webapp/role/webapp-role token_policies=default,webapp-policy
 
     # 
     $ vault secrets enable -path=db-creds kv

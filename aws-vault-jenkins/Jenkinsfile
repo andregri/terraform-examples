@@ -70,6 +70,11 @@ node {
                     returnStdout: true,
                     script: "echo '${credentials}' | jq '.data.password'"
                 )
+
+                sh """
+                    echo ${credentials} > /tmp/db.json
+                    cat /tmp/db.json
+                """
             }
 
             stage('Get aws credentials')
@@ -105,7 +110,8 @@ node {
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
                     terraform init -no-color
-                    AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY} terraform apply -auto-approve -no-color
+                    terraform apply -auto-approve -no-color
+                    terraform destroy -auto-approve
                 """
             }
         }
