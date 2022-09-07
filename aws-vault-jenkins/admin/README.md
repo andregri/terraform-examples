@@ -73,7 +73,10 @@
                     "Sid": "Stmt1426528957000",
                     "Effect": "Allow",
                     "Action": [
-                        "ec2:*", "rds:*", "iam:GetUser"
+                        "ec2:*",
+                        "rds:*",
+                        "iam:GetUser",
+                        "iam:CreateUser"
                     ],
                     "Resource": [
                         "*"
