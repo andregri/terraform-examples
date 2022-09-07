@@ -8,7 +8,7 @@ path "auth/webapp/role/webapp-role/secret-id" {
     max_wrapping_ttl = "1000s"
 }
 
-path "aws/*" {
+path "aws/creds/pipeline-role" {
     capabilities = ["read"]
 }
 

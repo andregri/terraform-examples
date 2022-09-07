@@ -33,10 +33,10 @@
 
     $ vault write auth/pipeline/role/pipeline-role \
         secret_id_ttl=300 \
-        token_num_uses=1 \
+        token_num_uses=2 \
         token_ttl=1800
 
-    $ vault write auth/pipeline/role/pipeline-role \
+    $ vault write auth/webapp/role/webapp-role \
         secret_id_ttl=600 \
         token_num_uses=1 \
         token_ttl=1800
