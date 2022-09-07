@@ -7,3 +7,7 @@ output "web_server_public_ip" {
 output "db_address" {
   value = aws_db_instance.appdb.address
 }
+
+output "webapp-role-arn" {
+  value = aws_iam_role.webapp.arn
+}

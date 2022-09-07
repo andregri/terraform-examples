@@ -5,7 +5,6 @@ resource "aws_instance" "jenkins-node" {
     key_name                    = var.key_name
     vpc_security_group_ids      = [aws_security_group.jenkins.id]
     associate_public_ip_address = true
-    iam_instance_profile        = aws_iam_instance_profile.jenkins.id
 
     tags = {
       Name     = "${var.environment_name}-jenkins"

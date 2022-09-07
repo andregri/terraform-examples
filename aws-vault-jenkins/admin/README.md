@@ -36,11 +36,6 @@
         token_num_uses=3 \
         token_ttl=1800
 
-    $ vault write auth/webapp/role/webapp-role \
-        secret_id_ttl=600 \
-        token_num_uses=1 \
-        token_ttl=1800
-
     ## Write the policy for jenkins-role that allow Jenkins node to get a secret-id for pipeline-role
     $ vim jenkins-policy.hcl
     $ vault policy write jenkins-policy jenkins-policy.hcl
@@ -54,7 +49,6 @@
     ## Write the policy for webapp-role that allows the app to 
     $ vim webapp-policy.hcl
     $ vault policy write webapp-policy webapp-policy.hcl
-    $ vault write auth/webapp/role/webapp-role token_policies=default,webapp-policy
 
     # 
     $ vault secrets enable -path=db-creds kv
@@ -87,6 +81,17 @@
 EOF
     ```
 
+    ```shell
+    # Enable aws authentication method for the vault agent
+    $ vault auth enable aws
+
+    # Configure the aws client
+    $ vault write -force auth/aws/config/client region="us-east-1" access_key=xxx secret_key=xxx
+
+    # Substitute account_id with yours
+    $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${account_id}:role/webapp-role" policies=webapp-policy ttl=24h
+    ```
+
 3. On the **jenkins** instance, run the following commands:
 
     ```shell
@@ -103,4 +108,14 @@ EOF
     ```shell
     $ vault read auth/jenkins/role/jenkins-role/role-id
     $ vault write -f auth/jenkins/role/jenkins-role/secret-id
+    ```
+
+4. The Vault agent on the app node:
+
+    ```shell
+    # Run the vault agent that writes the token to the file 'vault-token-via-agent'
+    $ vault agent -config=/home/ubuntu/vault-agent.hcl -log-level=debug
+
+    # Read the secret thanks to the vault token and the webapp-policy permission
+    $ curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: $(cat vault-token-via-agent)" ${VAULT_ADDR}/v1/db-creds/db | jq ".data"
     ```
