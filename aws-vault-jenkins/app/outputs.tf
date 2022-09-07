@@ -5,5 +5,5 @@ output "web_server_public_ip" {
 }
 
 output "db_address" {
-  value = aws_db_instance.app.address
+  value = aws_db_instance.appdb.address
 }
