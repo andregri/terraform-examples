@@ -98,8 +98,8 @@ node {
             stage('Provision webapp infrastructure with terraform')
             {
                 env.TF_VAR_aws_region = "us-east-1"
-                env.TF_VAR_username = env.DB_USER
-                env.TF_VAR_password = env.DB_PASSWORD
+                env.TF_VAR_username = "jenkins"
+                env.TF_VAR_password = "12345678"
                 env.TF_VAR_key_name = "vault-kp"
 
                 sh """

@@ -11,7 +11,7 @@ resource "aws_db_instance" "appdb" {
 }
 
 resource "aws_db_subnet_group" "devgroup" {
-  name       = "main"
+  name       = "devgroup"
   subnet_ids = module.aws_vpc.public_subnets
 
   tags = {
