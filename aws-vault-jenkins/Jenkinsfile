@@ -62,13 +62,13 @@ node {
                 env.DB_USER = ""
                 env.DB_USER = sh(
                     returnStdout: true,
-                    script: "echo '${credentials}' | jq '.data.user'"
+                    script: "echo '${credentials}' | jq -r '.data.user'"
                 )
 
                 env.DB_PASSWORD = ""
                 env.DB_PASSWORD = sh(
                     returnStdout: true,
-                    script: "echo '${credentials}' | jq '.data.password'"
+                    script: "echo '${credentials}' | jq -r '.data.password'"
                 )
             }
 
@@ -98,15 +98,15 @@ node {
             stage('Provision webapp infrastructure with terraform')
             {
                 env.TF_VAR_aws_region = "us-east-1"
-                env.TF_VAR_username = "jenkins"
-                env.TF_VAR_password = "12345678"
+                env.TF_VAR_username = env.DB_USER.trim()
+                env.TF_VAR_password = env.DB_PASSWORD.trim()
                 env.TF_VAR_key_name = "vault-kp"
 
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
                     terraform init -no-color
                     AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY} terraform apply -auto-approve -no-color
-                    terraform destroy -auto-approve
+                    terraform destroy -auto-approve -no-color
                 """
             }
         }
