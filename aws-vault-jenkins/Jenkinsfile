@@ -103,8 +103,7 @@ node {
                 env.TF_VAR_key_name = "vault-kp"
 
                 sh """
-                    ls "${env.WORKSPACE}"
-                    cd "${env.WORKSPACE}/terraform-examples/aws-vault-jenkins/app"
+                    cd "${env.WORKSPACE}/aws-vault-jenkins/app"
                     terraform init
                     terraform apply -auto-approve -no-color
                 """
