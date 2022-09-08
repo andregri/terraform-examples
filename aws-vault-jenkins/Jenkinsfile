@@ -1,10 +1,13 @@
+def VAULT_ADDR = 'http://3.237.91.150:8200'
+env.VAULT_ADDR = VAULT_ADDR
+
 node {
     checkout scm
     withCredentials([
             [
                 $class: 'VaultTokenCredentialBinding',
                 credentialsId: 'vault-jenkins-auth',
-                vaultAddr: 'http://3.237.91.150:8200'
+                vaultAddr: env.VAULT_ADDR
             ]
         ]){
             stage('Jenkins Node reads the role-id for the pipeline-role')
@@ -103,6 +106,7 @@ node {
                 env.TF_VAR_username = env.DB_USER.trim()
                 env.TF_VAR_password = env.DB_PASSWORD.trim()
                 env.TF_VAR_key_name = "vault-kp"
+                env.TF_VAR_tpl_vault_server_addr = ${VAULT_ADDR}
 
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
