@@ -69,11 +69,18 @@
                     "Effect": "Allow",
                     "Action": [
                         "ec2:*",
-                        "rds:*"
+                        "rds:*",
+                        "iam:GetInstanceProfile"
                     ],
-                    "Resource": [
-                        "*"
-                    ]
+                    "Resource": ["*"]
+                },
+                {
+                    "Sid": "PassRoleToWebapp",
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:PassRole"
+                    ],
+                    "Resource": ["arn:aws:iam::${AWS_ACCOUNT_ID}:role/vault-client-role"]
                 }
             ]
         }
@@ -89,7 +96,7 @@ EOF
 
     # Create a role for the webapp
     # Substitute account_id with yours
-    $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${account_id}:role/vault-client-role" policies=webapp-policy ttl=24h
+    $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/vault-client-role" policies=webapp-policy ttl=24h
     ```
 
 3. On the **jenkins** instance, run the following commands:
