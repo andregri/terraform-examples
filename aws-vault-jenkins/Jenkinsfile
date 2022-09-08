@@ -4,7 +4,7 @@ node {
             [
                 $class: 'VaultTokenCredentialBinding',
                 credentialsId: 'vault-jenkins-auth',
-                vaultAddr: 'http://35.173.248.244:8200'
+                vaultAddr: 'http://3.237.91.150:8200'
             ]
         ]){
             stage('Jenkins Node reads the role-id for the pipeline-role')
@@ -93,11 +93,13 @@ node {
                     returnStdout: true,
                     script: "cat /tmp/aws_creds.json | jq '.data.secret_key'"
                 )
+
+                env.AWS_REGION = "us-east-1"
             }
 
             stage('Provision webapp infrastructure with terraform')
             {
-                env.TF_VAR_aws_region = "us-east-1"
+                env.TF_VAR_aws_region = env.AWS_REGION
                 env.TF_VAR_username = env.DB_USER.trim()
                 env.TF_VAR_password = env.DB_PASSWORD.trim()
                 env.TF_VAR_key_name = "vault-kp"
@@ -105,7 +107,7 @@ node {
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
                     terraform init -no-color
-                    AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY} terraform apply -auto-approve -no-color
+                    terraform apply -auto-approve -no-color
                     terraform destroy -auto-approve -no-color
                 """
             }

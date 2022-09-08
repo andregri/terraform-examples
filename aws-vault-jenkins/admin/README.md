@@ -14,18 +14,17 @@
     $ vault login $(grep 'Initial Root Token:' key.txt | awk '{print $NF}')
 
     #
-    ## Enable authentication approle method for jenkins node, jenkins pipeline, and application
+    ## Enable authentication approle method for jenkins node, jenkins pipeline
     #
     $ vault auth enable -path=jenkins approle
     $ vault auth enable -path=pipeline approle
-    $ vault auth enable -path=webapp approle
 
     #
-    # Create roles for Jenkins node, Jenkins pipeline, and application
+    # Create roles for Jenkins node, Jenkins pipeline
     #
     # secret_id_num_uses=0 means unlimited uses
     $ vault write auth/jenkins/role/jenkins-role \
-        secret_id_ttl=10m \
+        secret_id_ttl=30m \
         token_num_uses=10 \
         token_ttl=20m \
         token_max_ttl=30m \
@@ -41,7 +40,7 @@
     $ vault policy write jenkins-policy jenkins-policy.hcl
     $ vault write auth/jenkins/role/jenkins-role token_policies=default,jenkins-policy
 
-    ## Write policy for pipeline-role that allows Jenkins pipeline to get a secret-id for webapp-role, get credentials from aws to build infrastructure with terraform
+    ## Write policy for pipeline-role that allows Jenkins pipeline to get credentials from aws to build infrastructure with terraform, and read kv secrets
     $ vim pipeline-policy.hcl
     $ vault policy write pipeline-policy pipeline-policy.hcl
     $ vault write auth/pipeline/role/pipeline-role token_policies=default,pipeline-policy
@@ -68,9 +67,7 @@
                     "Effect": "Allow",
                     "Action": [
                         "ec2:*",
-                        "rds:*",
-                        "iam:GetUser",
-                        "iam:CreateUser"
+                        "rds:*"
                     ],
                     "Resource": [
                         "*"
@@ -88,6 +85,7 @@ EOF
     # Configure the aws client
     $ vault write -force auth/aws/config/client region="us-east-1" access_key=xxx secret_key=xxx
 
+    # Create a role for the webapp
     # Substitute account_id with yours
     $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${account_id}:role/webapp-role" policies=webapp-policy ttl=24h
     ```
