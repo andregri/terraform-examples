@@ -18,6 +18,23 @@ resource "aws_iam_role_policy" "vault-server" {
   policy = data.aws_iam_policy_document.vault-server.json
 }
 
+## Vault Client IAM Config
+resource "aws_iam_role" "vault-client" {
+  name                = "vault-client-role"
+  assume_role_policy  = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy" "vault-client" {
+  name    = "vault-client-role-policy"
+  role    = aws_iam_role.vault-client.id
+  policy  = data.aws_iam_policy_document.vault-client.json
+}
+
+resource "aws_iam_instance_profile" "vault-client" {
+  name = "vault-client-instance-profile"
+  role = aws_iam_role.vault-client.id
+}
+
 //--------------------------------------------------------------------
 // Data Sources
 
@@ -56,6 +73,29 @@ data "aws_iam_policy_document" "vault-server" {
   }
 
   statement {
+    sid    = "VaultAWSDynamicSecret"
+    effect = "Allow"
+    actions = [
+      "iam:AttachUserPolicy",
+      "iam:CreateAccessKey",
+      "iam:CreateUser",
+      "iam:DeleteAccessKey",
+      "iam:DeleteUser",
+      "iam:DeleteUserPolicy",
+      "iam:DetachUserPolicy",
+      "iam:GetUser",
+      "iam:ListAccessKeys",
+      "iam:ListAttachedUserPolicies",
+      "iam:ListGroupsForUser",
+      "iam:ListUserPolicies",
+      "iam:PutUserPolicy",
+      "iam:AddUserToGroup",
+      "iam:RemoveUserFromGroup",
+    ]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/vault-*"]
+  }
+
+  statement {
     sid    = "VaultKMSUnseal"
     effect = "Allow"
 
@@ -69,35 +109,13 @@ data "aws_iam_policy_document" "vault-server" {
   }
 }
 
-//--------------------------------------------------------------------
-## Vault Agent
-
-resource "aws_iam_instance_profile" "webapp-role" {
-  name    = "webapp-role-instance-profile"
-  role    = aws_iam_role.webapp.id
-}
-
-resource "aws_iam_role" "webapp" {
-  name                = "webapp-role"
-  assume_role_policy  = data.aws_iam_policy_document.assume_role.json
-}
-
-resource "aws_iam_role_policy" "webapp" {
-  name    = "webapp-role-policy"
-  role    = aws_iam_role.webapp.id
-  policy  = data.aws_iam_policy_document.vault_agent.json
-}
-
-data "aws_iam_policy_document" "vault_agent" {
+# This role is needed just to identify clients running the vault agent.
+# Add a useless permission because you can't create a role with no one.
+data "aws_iam_policy_document" "vault-client" {
   statement {
-    sid    = "VaultAWSAuthMethod"
+    sid = "VaultAgent"
     effect = "Allow"
-    actions = [
-      "ec2:DescribeInstances",
-      "iam:GetInstanceProfile",
-      "iam:GetUser",
-      "iam:GetRole",
-    ]
+    actions = ["ec2:DescribeInstances"]
     resources = ["*"]
   }
 }

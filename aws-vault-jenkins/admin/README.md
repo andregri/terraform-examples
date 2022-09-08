@@ -55,7 +55,9 @@
 
     # Enable AWS dynamic secrets
     $ vault secrets enable aws
-    $ vault write aws/config/root/ access_key="" secret_key="" region="us-east-1"
+
+    # Configure AWS with credentials in this EC2 instance
+    $ vault write -force aws/config/root/
     $ vault write aws/roles/pipeline-role \
         credential_type=iam_user \
         policy_document=-<<EOF
@@ -83,11 +85,11 @@ EOF
     $ vault auth enable aws
 
     # Configure the aws client
-    $ vault write -force auth/aws/config/client region="us-east-1" access_key=xxx secret_key=xxx
+    $ vault write -force auth/aws/config/client
 
     # Create a role for the webapp
     # Substitute account_id with yours
-    $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${account_id}:role/webapp-role" policies=webapp-policy ttl=24h
+    $ vault write auth/aws/role/webapp-role auth_type=iam bound_iam_principal_arn="arn:aws:iam::${account_id}:role/vault-client-role" policies=webapp-policy ttl=24h
     ```
 
 3. On the **jenkins** instance, run the following commands:
