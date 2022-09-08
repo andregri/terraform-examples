@@ -106,7 +106,7 @@ node {
                 env.TF_VAR_username = env.DB_USER.trim()
                 env.TF_VAR_password = env.DB_PASSWORD.trim()
                 env.TF_VAR_key_name = "vault-kp"
-                env.TF_VAR_tpl_vault_server_addr = ${VAULT_ADDR}
+                env.TF_VAR_tpl_vault_server_addr = env.VAULT_ADDR
 
                 sh """
                     cd "${env.WORKSPACE}/aws-vault-jenkins/app"
