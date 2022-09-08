@@ -1,4 +1,4 @@
-def VAULT_ADDR = 'http://3.237.91.150:8200'
+def VAULT_ADDR = 'http://3.90.142.201:8200'
 env.VAULT_ADDR = VAULT_ADDR
 
 node {
