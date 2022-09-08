@@ -17,3 +17,7 @@ For example:
 EOF
 
 }
+
+output "vault-client-role-arn" {
+  value = aws_iam_role.vault-client.arn
+}

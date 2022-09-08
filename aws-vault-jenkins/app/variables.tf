@@ -25,5 +25,6 @@ variable "vault_zip_file" {
 }
 
 variable "tpl_vault_server_addr" {
+  description = "IP address of Vault server"
   type = string
 }

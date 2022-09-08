@@ -5,7 +5,7 @@ resource "aws_instance" "web_server" {
 
     associate_public_ip_address = true
     subnet_id = module.aws_vpc.public_subnets[0]
-    iam_instance_profile = data.aws_iam_instance_profile.vault-client.id
+    iam_instance_profile = data.aws_iam_instance_profile.vault-client.name
 
     security_groups = [
       aws_security_group.allow_http.id,
