@@ -4,10 +4,6 @@ def vault_addr = 'http://44.197.182.74:8200'
 pipeline {
     agent any
 
-    environment {
-        PIPELINE_VAULT_TOKEN = ''
-    }
-
     stages {
         stage('Get a Vault token for the pipeline') {
             steps {
@@ -19,58 +15,79 @@ pipeline {
                     ]
                 ]){
                     script {
-                        ROLE_ID = sh(
-                            returnStdout: true,
-                            script: '''
-                                set +x
-                                curl --silent \
-                                    -H "X-Vault-Request: true" \
-                                    -H "X-Vault-Token: $VAULT_TOKEN" \
-                                    $VAULT_ADDR/v1/auth/pipeline/role/pipeline-role/role-id \
-                                    | jq ".data.role_id"
-                            '''
+                        // Get role id
+                        role_id_response = httpRequest(
+                            quiet: true,
+                            url: env.VAULT_ADDR + '/v1/auth/pipeline/role/pipeline-role/role-id',
+                            httpMode: 'GET',
+                            customHeaders: [
+                                [name:'X-Vault-Token', value: env.VAULT_TOKEN],
+                                [name:'X-Vault-Request', value:'true']
+                            ],
+                            consoleLogResponseBody: false
                         )
+                        def ROLE_ID = readJSON(text: role_id_response.content).data.role_id
 
-                        WRAPPED_SECRET_ID = sh(
-                            returnStdout: true,
-                            script: '''
-                                set +x
-                                curl --silent --request POST \
-                                    -H "X-Vault-Token: $VAULT_TOKEN" \
-                                    -H "X-Vault-Wrap-Ttl: 300s" \
-                                    "$VAULT_ADDR/v1/auth/pipeline/role/pipeline-role/secret-id" \
-                                    | jq ".wrap_info.token"
-                                '''
+                        // Get wrapped secret id
+                        wrapped_secret_response = httpRequest(
+                            quiet: true,
+                            url: env.VAULT_ADDR + '/v1/auth/pipeline/role/pipeline-role/secret-id',
+                            httpMode: 'POST',
+                            customHeaders: [
+                                [name:'X-Vault-Token', value: env.VAULT_TOKEN],
+                                [name:'X-Vault-Wrap-Ttl', value:'300s']
+                            ],
+                            consoleLogResponseBody: false
                         )
+                        def WRAPPED_SECRET_ID = readJSON(text: wrapped_secret_response.content).wrap_info.token
 
-                        SECRET_ID = sh(
-                            returnStdout: true,
-                            script: """
-                                set +x
-                                curl --silent -X PUT \
-                                    -H "X-Vault-Request: true" \
-                                    -H "X-Vault-Token: $VAULT_TOKEN" \
-                                    -d '{\"token\":${WRAPPED_SECRET_ID}}' \
-                                    $VAULT_ADDR/v1/sys/wrapping/unwrap \
-                                    | jq ".data.secret_id"
-                            """
-                        )
+                        // Unwrap the secret id
+                        String unwrap_request_body = writeJSON returnText: true, json: ['token': WRAPPED_SECRET_ID]
 
-                        PIPELINE_VAULT_TOKEN = sh(
-                            returnStdout: true,
-                            script: """
-                                set +x
-                                curl --silent -X PUT \
-                                    -H "X-Vault-Request: true" \
-                                    -H "X-Vault-Token: ${VAULT_TOKEN}" \
-                                    -d '{\"role_id\":${ROLE_ID},\"secret_id\":${SECRET_ID}}' \
-                                    ${VAULT_ADDR}/v1/auth/pipeline/login | jq ".auth.client_token"
-                            """
+                        unwrap_secret_response = httpRequest(
+                            quiet: true,
+                            url: env.VAULT_ADDR + '/v1/sys/wrapping/unwrap',
+                            httpMode: 'PUT',
+                            customHeaders: [
+                                [name:'X-Vault-Token', value: env.VAULT_TOKEN],
+                                [name:'X-Vault-Request', value:'true']
+                            ],
+                            consoleLogResponseBody: false,
+                            requestBody: unwrap_request_body
                         )
+                        def SECRET_ID = readJSON(text: unwrap_secret_response.content).data.secret_id
+
+                        // Use role-id and secret-id to get a token
+                        pipeline_token_response = httpRequest(
+                            quiet: true,
+                            url: env.VAULT_ADDR + '/v1/auth/pipeline/login',
+                            httpMode: 'PUT',
+                            customHeaders: [
+                                [name:'X-Vault-Token', value: env.VAULT_TOKEN],
+                                [name:'X-Vault-Request', value:'true']
+                            ],
+                            requestBody: writeJSON(returnText: true, json: [
+                                'role_id': ROLE_ID, 'secret_id': SECRET_ID
+                            ]),
+                            consoleLogResponseBody: false
+                        )
+                        def PIPELINE_VAULT_TOKEN = readJSON(text: pipeline_token_response.content).auth.client_token
                     }
                 }
             }
         }
+            /*post {
+                failure {
+                    // Revoke token for pipeline-role
+                    sh """
+                        curl \
+                            --header "X-Vault-Token: ${VAULT_TOKEN}" \
+                            --request POST \
+                            --data "{\"token\": ${PIPELINE_VAULT_TOKEN}}" \
+                            ${VAULT_ADDR}/v1/auth/token/revoke
+                    """
+                }
+            }*/
 
         stage('Build app infrastructure with Terraform') {
             environment {
@@ -131,14 +148,14 @@ pipeline {
                         """
                     ).trim()
 
-                    git branch: 'main', url: 'https://github.com/andregri/terraform-examples.git'
+                    /*git branch: 'main', url: 'https://github.com/andregri/terraform-examples.git'
                     
                     sh("""
                         cd "${WORKSPACE}/aws-vault-jenkins/app"
                         terraform init -no-color
                         terraform apply -auto-approve -no-color
                         terraform destroy -auto-approve -no-color
-                    """)
+                    """)*/
                 }
             }
             post {
