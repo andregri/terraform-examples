@@ -1,5 +1,5 @@
 def vault_cred_id = 'vault-jenkins-auth'
-def vault_addr = 'http://3.80.102.196:8200'
+def vault_addr = 'http://44.197.182.74:8200'
 
 pipeline {
     agent any
@@ -90,21 +90,21 @@ pipeline {
                         """
                     )
 
-                    username = sh(
+                    env.TF_VAR_username = sh(
                         returnStdout: true,
                         script: """
                             set +x
                             echo '${credentials_db}' | jq -r '.data.user'
                         """
-                    )
+                    ).trim()
 
-                    password = sh(
+                    env.TF_VAR_password = sh(
                         returnStdout: true,
                         script: """
                             set +x
                             echo '${credentials_db}' | jq -r '.data.password'
                         """
-                    )
+                    ).trim()
 
                     // Get temporary AWS credentials
                     credentials_aws = sh(
@@ -115,7 +115,7 @@ pipeline {
                         """
                     )
 
-                    def AWS_ACCESS_KEY_ID = sh(
+                    env.AWS_ACCESS_KEY_ID = sh(
                         returnStdout: true,
                         script: """
                             set +x
@@ -123,7 +123,7 @@ pipeline {
                         """
                     ).trim()
 
-                    def AWS_SECRET_ACCESS_KEY = sh(
+                    env.AWS_SECRET_ACCESS_KEY = sh(
                         returnStdout: true,
                         script: """
                             set +x 
@@ -136,9 +136,14 @@ pipeline {
                     sh("""
                         cd "${WORKSPACE}/aws-vault-jenkins/app"
                         terraform init -no-color
-                        terraform apply -auto-approve -no-color -var="username=${username}" -var="password=${password}"
+                        terraform apply -auto-approve -no-color
                         terraform destroy -auto-approve -no-color
                     """)
+                }
+            }
+            post {
+                failure {
+                    sh 'terraform destroy -auto-approve -no-color'
                 }
             }
         }
