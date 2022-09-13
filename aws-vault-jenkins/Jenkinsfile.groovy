@@ -55,6 +55,14 @@ pipeline {
                             consoleLogResponseBody: false,
                             requestBody: unwrap_request_body
                         )
+
+                        // If unwrapping request fails, send notification...
+                        if (unwrap_secret_response.status != 200) {
+                            currentBuild.result = 'FAILURE'
+                            notifyFailed()
+                            error('Error unwrapping the secret id.')
+                        }
+
                         def SECRET_ID = readJSON(text: unwrap_secret_response.content).data.secret_id
 
                         // Use role-id and secret-id to get a token
@@ -76,18 +84,6 @@ pipeline {
                 }
             }
         }
-            /*post {
-                failure {
-                    // Revoke token for pipeline-role
-                    sh """
-                        curl \
-                            --header "X-Vault-Token: ${VAULT_TOKEN}" \
-                            --request POST \
-                            --data "{\"token\": ${PIPELINE_VAULT_TOKEN}}" \
-                            ${VAULT_ADDR}/v1/auth/token/revoke
-                    """
-                }
-            }*/
 
         stage('Build app infrastructure with Terraform') {
             environment {
@@ -165,4 +161,13 @@ pipeline {
             }
         }
     }
+}
+
+def notifyFailed() {
+    emailext (
+        subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+        body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+            <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+    )
 }
