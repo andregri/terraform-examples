@@ -1,3 +1,7 @@
+import hudson.util.Secret
+import com.cloudbees.plugins.credentials.CredentialsScope
+import com.datapipe.jenkins.vault.credentials.VaultTokenCredential
+
 def vault_cred_id = 'vault-jenkins-auth'
 def vault_addr = 'http://44.197.182.74:8200'
 
@@ -79,7 +83,37 @@ pipeline {
                             ]),
                             consoleLogResponseBody: false
                         )
-                        def PIPELINE_VAULT_TOKEN = readJSON(text: pipeline_token_response.content).auth.client_token
+                        env.PIPELINE_VAULT_TOKEN = readJSON(text: pipeline_token_response.content).auth.client_token
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    VaultTokenCredential pipelineCredential = new VaultTokenCredential(
+                        CredentialsScope.GLOBAL,
+                        'custom-credential',
+                        'My Custom Credential',
+                        Secret.fromString("${env.PIPELINE_VAULT_TOKEN}")
+                    )
+                    def configuration = [vaultUrl: vault_addr, engineVersion: 1,
+                            vaultCredential: pipelineCredential]
+                    def secrets = [
+                        [path: 'db-creds/db', engineVersion: 1, secretValues: [
+                            [envVar: 'testing', vaultKey: 'user'],
+                            [envVar: 'testing_again', vaultKey: 'password']]],
+                        [path: 'aws/creds/pipeline-role', engineVersion: 1, secretValues: [
+                            [envVar: 'testing1', vaultKey: 'access_key'],
+                            [envVar: 'testing_again1', vaultKey: 'secret_key']]]
+                    ]
+                    withVault([configuration: configuration, vaultSecrets: secrets]) {
+                        sh '''
+                        echo $testing1 > /tmp/creds
+                        echo $testing_again1 >> /tmp/creds
+                        cat /tmp/creds
+                        '''
                     }
                 }
             }
@@ -99,7 +133,7 @@ pipeline {
                         returnStdout: true,
                         script: """
                             set +x
-                            curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: ${PIPELINE_VAULT_TOKEN}" ${vault_addr}/v1/db-creds/db
+                            curl --silent -H "X-Vault-Request: true" -H "X-Vault-Token: ${env.PIPELINE_VAULT_TOKEN}" ${vault_addr}/v1/db-creds/db
                         """
                     )
 
