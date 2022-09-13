@@ -17,6 +17,7 @@ resource "aws_instance" "jenkins-node" {
       tpl_kms_key                 = aws_kms_key.vault.id
       tpl_aws_region              = var.aws_region
       tpl_node_id                 = "${var.environment_name}-jenkins-role"
+      vault_server_ip_addr        = aws_instance.vault-server[0].public_ip
     })
 
     lifecycle {
