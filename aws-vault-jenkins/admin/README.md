@@ -12,6 +12,11 @@
 
     # Log in with initial root token
     $ vault login $(grep 'Initial Root Token:' key.txt | awk '{print $NF}')
+    
+    # Get role-id and secret-id for jenkins-role
+    $ vault read auth/jenkins/role/jenkins-role/role-id
+    $ vault write -f auth/jenkins/role/jenkins-role/secret-id
+    ```
 
 3. On the **jenkins** instance, run the following commands:
 
@@ -24,12 +29,7 @@
 
     Install **vault** plugin and restart Jenkins.
 
-    Configure Vault plugin adding the Vault URL `http://<public-ip-vault-server>:8200` and the AppRole credentials. Copy paste the role-id and the secret-id from the vault server node:
-
-    ```shell
-    $ vault read auth/jenkins/role/jenkins-role/role-id
-    $ vault write -f auth/jenkins/role/jenkins-role/secret-id
-    ```
+    Configure Vault plugin adding the Vault URL `http://<public-ip-vault-server>:8200` and the AppRole credentials. Copy paste the role-id and the secret-id from the vault server node.
 
 4. The Vault agent on the app node:
 
