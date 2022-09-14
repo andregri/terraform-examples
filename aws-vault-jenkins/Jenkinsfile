@@ -4,6 +4,7 @@ import com.datapipe.jenkins.vault.credentials.VaultTokenCredential
 
 def vault_cred_id = 'vault-jenkins-auth'
 def vault_addr = 'http://54.221.172.71:8200'
+def ROLE_ID = ''
 
 pipeline {
     agent any
@@ -19,19 +20,6 @@ pipeline {
                     ]
                 ]){
                     script {
-                        // Get role id
-                        role_id_response = httpRequest(
-                            quiet: true,
-                            url: env.VAULT_ADDR + '/v1/auth/pipeline/role/pipeline-role/role-id',
-                            httpMode: 'GET',
-                            customHeaders: [
-                                [name:'X-Vault-Token', value: env.VAULT_TOKEN],
-                                [name:'X-Vault-Request', value:'true']
-                            ],
-                            consoleLogResponseBody: false
-                        )
-                        def ROLE_ID = readJSON(text: role_id_response.content).data.role_id
-
                         // Get wrapped secret id
                         wrapped_secret_response = httpRequest(
                             quiet: true,

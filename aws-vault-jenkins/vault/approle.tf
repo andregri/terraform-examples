@@ -7,15 +7,10 @@ resource "vault_auth_backend" "jenkins" {
 
 data "vault_policy_document" "jenkins" {
   rule {
-    path                = "auth/pipeline/role/pipeline-role/secret-id"
-    capabilities        = ["create", "update"]
+    path                = "auth/pipeline/role/+/secret-id"
+    capabilities        = ["create", "read", "update"]
     min_wrapping_ttl    = "100s"
     max_wrapping_ttl    = "300s"
-  }
-
-  rule {
-    path                = "auth/pipeline/role/pipeline-role/role-id"
-    capabilities        = ["read"]
   }
 }
 
