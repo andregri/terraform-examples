@@ -1,13 +1,13 @@
 // Jenkins
 
-resource "vault_auth_backend" "jenkins" {
+resource "vault_auth_backend" "approle" {
   type = "approle"
   path = "jenkins"
 }
 
 data "vault_policy_document" "jenkins" {
   rule {
-    path                = "auth/pipeline/role/+/secret-id"
+    path                = "auth/jenkins/role/+/secret-id"
     capabilities        = ["create", "read", "update"]
     min_wrapping_ttl    = "100s"
     max_wrapping_ttl    = "300s"
@@ -32,11 +32,6 @@ resource "vault_approle_auth_backend_role" "jenkins" {
 }
 
 // Pipeline
-resource "vault_auth_backend" "pipeline" {
-  type = "approle"
-  path = "pipeline"
-}
-
 data "vault_policy_document" "pipeline" {
   rule {
     path                = "aws/creds/pipeline-role"
@@ -55,13 +50,13 @@ resource "vault_policy" "pipeline" {
 }
 
 resource "vault_approle_auth_backend_role" "pipeline" {
-  backend               = vault_auth_backend.pipeline.path
+  backend               = vault_auth_backend.jenkins.path
   role_name             = "pipeline-role"
   token_policies        = ["default", vault_policy.pipeline.name]
 
   secret_id_num_uses    = 1
   secret_id_ttl         = 300
 
-  token_max_ttl         = 1800
+  token_max_ttl         = 300
   token_num_uses        = 3
 }
