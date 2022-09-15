@@ -56,7 +56,4 @@ resource "vault_approle_auth_backend_role" "pipeline" {
 
   secret_id_num_uses    = 1
   secret_id_ttl         = 300
-
-  token_max_ttl         = 300
-  token_num_uses        = 3
 }
