@@ -14,7 +14,7 @@ resource "vault_aws_auth_backend_role" "example" {
   bound_iam_principal_arns        = ["arn:aws:iam::${var.aws_account_id}:role/vault-client-role"]
   token_policies                  = ["default", vault_policy.webapp.name]
 
-  depends_on                      = ["vault_aws_auth_backend_client.aws"]
+  depends_on                      = [vault_aws_auth_backend_client.aws]
 }
 
 data "vault_policy_document" "webapp" {

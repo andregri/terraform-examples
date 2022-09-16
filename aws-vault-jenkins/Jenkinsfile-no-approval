@@ -1,5 +1,5 @@
 def vault_cred_id = 'vault-jenkins-auth'
-def vault_addr = 'http://54.165.198.223:8200'
+def vault_addr = 'http://50.17.88.58:8200'
 
 pipeline {
     agent any
@@ -18,7 +18,7 @@ pipeline {
                         // Get wrapped secret id
                         wrapped_secret_response = httpRequest(
                             quiet: true,
-                            url: env.VAULT_ADDR + '/v1/auth/pipeline/role/pipeline-role/secret-id',
+                            url: env.VAULT_ADDR + '/v1/auth/jenkins/role/pipeline-role/secret-id',
                             httpMode: 'POST',
                             customHeaders: [
                                 [name:'X-Vault-Token', value: env.VAULT_TOKEN],
@@ -56,7 +56,7 @@ pipeline {
                             // Use role-id and secret-id to get a token
                             pipeline_token_response = httpRequest(
                                 quiet: true,
-                                url: env.VAULT_ADDR + '/v1/auth/pipeline/login',
+                                url: env.VAULT_ADDR + '/v1/auth/jenkins/login',
                                 httpMode: 'PUT',
                                 customHeaders: [
                                     [name:'X-Vault-Token', value: env.VAULT_TOKEN],
@@ -133,14 +133,17 @@ pipeline {
                         """
                     ).trim()
 
-                    git branch: 'main', url: 'https://github.com/andregri/terraform-examples.git'
+                    echo 'Terraform apply...'
+                    /*git branch: 'main', url: 'https://github.com/andregri/terraform-examples.git'
                     
                     sh("""
                         cd "${WORKSPACE}/aws-vault-jenkins/app"
                         terraform init -no-color
                         terraform apply -auto-approve -no-color
                         terraform destroy -auto-approve -no-color
-                    """)
+                    """)*/
+                }
+            }
         }
     }
 }

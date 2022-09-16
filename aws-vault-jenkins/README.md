@@ -29,11 +29,16 @@ $ vault status
 $ vault login $(grep 'Initial Root Token:' key.txt | awk '{print $NF}')
 ```
 
-5. Configure the Vault server with Terraform:
+5. Update the variables in `vault/terraform.tfvars`
+
+6. Configure the Vault server with Terraform:
 ```shell
+cd terraform-examples/aws-vault-jenkins/vault/
+terraform init
+terraform apply
 ```
 
-5. SSH into the vault server and generate a role-id and a secret-id for the Vault `jenkins-role`
+7. SSH into the vault server and generate a role-id and a secret-id for the Vault `jenkins-role`
 ```shell
 $ vault read auth/jenkins/role/jenkins-role/role-id
 
@@ -50,7 +55,7 @@ secret_id_accessor    <secret_id_accessor>
 secret_id_ttl         30m
 ```
 
-6. SSH into the Jenkins node and get the initial admin password
+8. SSH into the Jenkins node and get the initial admin password
 ```shell
 $ ssh -i vault-kp.pem ubuntu@<jenkins-public-ip>
 $ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
@@ -58,13 +63,17 @@ $ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 <initial admin password>
 ```
 
-7. Configure Jenkins through a browser at `<jenkins-public-ip>:8080` and install the following plugins:
+9. Configure Jenkins through a browser at `<jenkins-public-ip>:8080` and install the following plugins:
     - Vault
     - HTTP Request
     - Pipeline Utility Steps
 
-8. Add a Vault AppRole credential in Jenkins
+10. Add a Vault AppRole credential in Jenkins
     - role-id: ...
     - secret-id: ...
     - path: `jenkins`
     - ID: `vault-jenkins-auth`
+
+11. On Jenkins add a secret named `pipeline-role-id` with the pipeline-role role-id
+
+12. On Jenkins create a pipeline job named 'job1' and click Apply then Save

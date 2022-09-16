@@ -22,7 +22,7 @@ pipeline {
                         // Get wrapped secret id
                         wrapped_secret_response = httpRequest(
                             quiet: true,
-                            url: env.VAULT_ADDR + '/v1/auth/pipeline/role/pipeline-role/secret-id',
+                            url: env.VAULT_ADDR + '/v1/auth/jenkins/role/pipeline-role/secret-id',
                             httpMode: 'POST',
                             customHeaders: [
                                 [name:'X-Vault-Token', value: env.VAULT_TOKEN],
@@ -60,7 +60,7 @@ pipeline {
                             // Use role-id and secret-id to get a token
                             pipeline_token_response = httpRequest(
                                 quiet: true,
-                                url: env.VAULT_ADDR + '/v1/auth/pipeline/login',
+                                url: env.VAULT_ADDR + '/v1/auth/jenkins/login',
                                 httpMode: 'PUT',
                                 customHeaders: [
                                     [name:'X-Vault-Token', value: env.VAULT_TOKEN],

@@ -20,7 +20,7 @@ resource "vault_policy" "jenkins" {
 }
 
 resource "vault_approle_auth_backend_role" "jenkins" {
-  backend               = vault_auth_backend.jenkins.path
+  backend               = vault_auth_backend.approle.path
   role_name             = "jenkins-role"
   token_policies        = ["default", vault_policy.jenkins.name]
 
@@ -50,7 +50,7 @@ resource "vault_policy" "pipeline" {
 }
 
 resource "vault_approle_auth_backend_role" "pipeline" {
-  backend               = vault_auth_backend.jenkins.path
+  backend               = vault_auth_backend.approle.path
   role_name             = "pipeline-role"
   token_policies        = ["default", vault_policy.pipeline.name]
 
