@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [1.4.0](https://github.com/andregri/terraform-examples/compare/v1.3.0...v1.4.0) (2024-03-09)
+
+
+### Features
+
+* add aws load balancer provisioned without errors ([6f92706](https://github.com/andregri/terraform-examples/commit/6f927064fb15a2763634cf7600ced8a98d7dc777))
+
 # [1.3.0](https://github.com/andregri/terraform-examples/compare/v1.2.0...v1.3.0) (2022-09-06)
 
 
